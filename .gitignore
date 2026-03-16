@@ -5,6 +5,7 @@ Thumbs.db
 *.pem
 *.zip
 node_modules/
+coverage/
 .idea/
 .vscode/
 
