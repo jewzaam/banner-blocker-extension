@@ -19,7 +19,7 @@ describe("popup", function () {
 
   beforeEach(function () {
     mockHelper = createChromeMock();
-    document.body.innerHTML = '<div id="banner-list" role="list"></div>';
+    document.body.innerHTML = '<div id="banner-list" role="list"></div><footer><button id="debug-dump" type="button">Debug Dump</button></footer>';
   });
 
   it("renders one item per banner", function () {

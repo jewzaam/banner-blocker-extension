@@ -5,6 +5,8 @@
 (function () {
   "use strict";
 
+  var TAG = "[Banner Blocker]";
+
   if (typeof BANNERS === "undefined") {
     throw new Error("banners.js must be loaded before popup.js");
   }
@@ -40,8 +42,10 @@
     input.addEventListener("change", function () {
       var update = {};
       update[banner.id] = input.checked;
+      console.log(TAG, "Toggle", banner.id, "->", input.checked);
       chrome.storage.local.set(update, function () {
         if (chrome.runtime.lastError) {
+          console.warn(TAG, "Failed to save", banner.id, ":", chrome.runtime.lastError.message);
           input.checked = !input.checked;
         }
       });
@@ -65,15 +69,67 @@
       var enabled = states[banner.id] !== undefined ? states[banner.id] : banner.defaultEnabled;
       list.appendChild(createBannerItem(banner, enabled));
     }
+    console.log(TAG, "Rendered", BANNERS.length, "banner toggles");
   }
 
   chrome.storage.local.get(BANNER_IDS, function (stored) {
     var states;
     if (chrome.runtime.lastError) {
+      console.warn(TAG, "Storage error, using defaults:", chrome.runtime.lastError.message);
       states = getDefaultStates();
     } else {
       states = Object.assign({}, getDefaultStates(), stored);
     }
     renderBanners(states);
   });
+
+  // Debug dump — collect diagnostics and save as .json file
+  document.getElementById("debug-dump").addEventListener("click", function () {
+    var manifest = chrome.runtime.getManifest();
+    var dump = {
+      timestamp: new Date().toISOString(),
+      extension: {
+        name: manifest.name,
+        version: manifest.version,
+        manifestVersion: manifest.manifest_version
+      },
+      registry: BANNERS.map(function (b) {
+        return { id: b.id, selector: b.selector, textMatch: b.textMatch, defaultEnabled: b.defaultEnabled };
+      }),
+      storage: {},
+      contentScript: null
+    };
+
+    chrome.storage.local.get(null, function (allStorage) {
+      dump.storage = chrome.runtime.lastError ? { error: chrome.runtime.lastError.message } : allStorage;
+
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        if (!tabs || !tabs.length) {
+          dump.contentScript = { error: "No active tab" };
+          saveDump(dump);
+          return;
+        }
+        chrome.tabs.sendMessage(tabs[0].id, { type: "debug-dump" }, function (response) {
+          if (chrome.runtime.lastError) {
+            dump.contentScript = { error: chrome.runtime.lastError.message, tabUrl: tabs[0].url || "unknown" };
+          } else {
+            dump.contentScript = response;
+          }
+          saveDump(dump);
+        });
+      });
+    });
+  });
+
+  function saveDump(dump) {
+    var json = JSON.stringify(dump, null, 2);
+    var blob = new Blob([json], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "banner-blocker-debug-" + Date.now() + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+    console.log(TAG, "Debug dump saved");
+  }
 })();

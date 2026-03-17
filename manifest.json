@@ -7,6 +7,11 @@
   "content_scripts": [
     {
       "matches": ["*://*.atlassian.net/*"],
+      "css": ["blocker.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.atlassian.net/*"],
       "js": ["banners.js", "content.js"],
       "run_at": "document_idle"
     }

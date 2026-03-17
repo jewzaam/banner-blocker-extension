@@ -8,7 +8,7 @@ const BANNERS = Object.freeze([
     name: "Atlassian Cloud Welcome Banner",
     description: "\"Welcome to Atlassian Cloud! To report issues, raise a support ticket here.\"",
     defaultEnabled: true,
-    selector: '[data-testid="banner-container"]',
+    selector: '[data-ssr-placeholder="announcement-banner"]',
     textMatch: "Welcome to Atlassian Cloud"
   })
 ]);
@@ -32,9 +32,22 @@ function matchesBanner(el, banner) {
   return true;
 }
 
+var BANNER_HEIGHT_PATTERN = /--(?:bannerHeight|n_bnrM)\s*:/;
+
 function hideBanner(el) {
-  if (!el.hasAttribute(HIDDEN_ATTR)) {
-    el.setAttribute(HIDDEN_ATTR, "true");
+  el.setAttribute(HIDDEN_ATTR, "true");
+  // Remove <style> tags in the banner's parent that set layout height variables.
+  // Atlassian reserves banner space via CSS custom properties (--bannerHeight, --n_bnrM)
+  // injected in <style> siblings — display:none alone leaves a blank gap.
+  // Run every time (not just first hide) because Atlassian's SPA re-injects them.
+  var parent = el.parentElement;
+  if (parent) {
+    var styles = parent.querySelectorAll("style");
+    for (var i = 0; i < styles.length; i++) {
+      if (BANNER_HEIGHT_PATTERN.test(styles[i].textContent)) {
+        parent.removeChild(styles[i]);
+      }
+    }
   }
 }
 

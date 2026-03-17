@@ -50,7 +50,21 @@ export function createChromeMock() {
       }
     },
     runtime: {
-      lastError: null
+      lastError: null,
+      getManifest: function () {
+        return { name: "Banner Blocker", version: "1.0.0", manifest_version: 3 };
+      },
+      onMessage: {
+        addListener: function () {}
+      }
+    },
+    tabs: {
+      query: function (opts, callback) {
+        callback([{ id: 1, url: "https://test.atlassian.net/" }]);
+      },
+      sendMessage: function (tabId, msg, callback) {
+        if (callback) callback(undefined);
+      }
     }
   };
 
