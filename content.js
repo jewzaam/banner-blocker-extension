@@ -15,11 +15,6 @@
 
   var blockingEnabled = {};
 
-  // Inject a style rule for hiding — more resilient than inline style manipulation
-  var style = document.createElement("style");
-  style.textContent = "[" + HIDDEN_ATTR + "] { display: none !important; }";
-  document.head.appendChild(style);
-
   function processBanners() {
     for (var i = 0; i < BANNERS.length; i++) {
       var banner = BANNERS[i];
@@ -69,46 +64,6 @@
     var observer = new MutationObserver(debouncedProcess);
     observer.observe(document.body, { childList: true, subtree: true });
     console.log(TAG, "MutationObserver active");
-  });
-
-  // Respond to debug dump requests from popup
-  chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if (msg.type !== "debug-dump") return;
-    var bannerDetails = [];
-    for (var i = 0; i < BANNERS.length; i++) {
-      var banner = BANNERS[i];
-      var elements;
-      var selectorValid = true;
-      try {
-        elements = document.querySelectorAll(banner.selector);
-      } catch (e) {
-        elements = [];
-        selectorValid = false;
-      }
-      var matched = 0;
-      var hidden = 0;
-      for (var j = 0; j < elements.length; j++) {
-        if (matchesBanner(elements[j], banner)) {
-          matched++;
-          if (elements[j].hasAttribute(HIDDEN_ATTR)) hidden++;
-        }
-      }
-      bannerDetails.push({
-        id: banner.id,
-        selector: banner.selector,
-        selectorValid: selectorValid,
-        elementsFound: elements.length,
-        textMatched: matched,
-        hidden: hidden,
-        enabled: !!blockingEnabled[banner.id]
-      });
-    }
-    sendResponse({
-      url: location.href,
-      hostname: location.hostname,
-      blockingEnabled: blockingEnabled,
-      banners: bannerDetails
-    });
   });
 
   // React to toggle changes from popup without page reload
