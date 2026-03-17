@@ -5,9 +5,13 @@
 (function () {
   "use strict";
 
+  var TAG = "[Banner Blocker]";
+
   if (typeof BANNERS === "undefined") {
     throw new Error("banners.js must be loaded before content.js");
   }
+
+  console.log(TAG, "Content script loaded on", location.hostname);
 
   var blockingEnabled = {};
 
@@ -23,14 +27,21 @@
       try {
         elements = document.querySelectorAll(banner.selector);
       } catch (e) {
+        console.warn(TAG, "Invalid selector for", banner.id, ":", banner.selector);
         continue;
       }
       for (var j = 0; j < elements.length; j++) {
         var el = elements[j];
         if (!matchesBanner(el, banner)) continue;
         if (blockingEnabled[banner.id]) {
+          if (!el.hasAttribute(HIDDEN_ATTR)) {
+            console.log(TAG, "Hiding", banner.id);
+          }
           hideBanner(el);
         } else {
+          if (el.hasAttribute(HIDDEN_ATTR)) {
+            console.log(TAG, "Showing", banner.id);
+          }
           showBanner(el);
         }
       }
@@ -47,14 +58,57 @@
   // Load saved states and start observing
   chrome.storage.local.get(BANNER_IDS, function (stored) {
     if (chrome.runtime.lastError) {
+      console.warn(TAG, "Storage error, using defaults:", chrome.runtime.lastError.message);
       blockingEnabled = getDefaultStates();
     } else {
       blockingEnabled = Object.assign({}, getDefaultStates(), stored);
+      console.log(TAG, "Loaded states:", JSON.stringify(blockingEnabled));
     }
     processBanners();
 
     var observer = new MutationObserver(debouncedProcess);
     observer.observe(document.body, { childList: true, subtree: true });
+    console.log(TAG, "MutationObserver active");
+  });
+
+  // Respond to debug dump requests from popup
+  chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+    if (msg.type !== "debug-dump") return;
+    var bannerDetails = [];
+    for (var i = 0; i < BANNERS.length; i++) {
+      var banner = BANNERS[i];
+      var elements;
+      var selectorValid = true;
+      try {
+        elements = document.querySelectorAll(banner.selector);
+      } catch (e) {
+        elements = [];
+        selectorValid = false;
+      }
+      var matched = 0;
+      var hidden = 0;
+      for (var j = 0; j < elements.length; j++) {
+        if (matchesBanner(elements[j], banner)) {
+          matched++;
+          if (elements[j].hasAttribute(HIDDEN_ATTR)) hidden++;
+        }
+      }
+      bannerDetails.push({
+        id: banner.id,
+        selector: banner.selector,
+        selectorValid: selectorValid,
+        elementsFound: elements.length,
+        textMatched: matched,
+        hidden: hidden,
+        enabled: !!blockingEnabled[banner.id]
+      });
+    }
+    sendResponse({
+      url: location.href,
+      hostname: location.hostname,
+      blockingEnabled: blockingEnabled,
+      banners: bannerDetails
+    });
   });
 
   // React to toggle changes from popup without page reload
@@ -62,6 +116,7 @@
     for (var key in changes) {
       if (BANNER_IDS.indexOf(key) === -1) continue;
       if (changes[key].newValue !== undefined) {
+        console.log(TAG, "Toggle", key, "->", changes[key].newValue);
         blockingEnabled[key] = changes[key].newValue;
       }
     }

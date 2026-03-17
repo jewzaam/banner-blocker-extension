@@ -27,7 +27,7 @@ describe("content script", function () {
 
   it("hides matching banner elements when blocking is enabled", function () {
     var el = document.createElement("div");
-    el.setAttribute("data-testid", "banner-container");
+    el.setAttribute("data-ssr-placeholder", "announcement-banner");
     el.textContent = "Welcome to Atlassian Cloud! To report issues, raise a support ticket here.";
     document.body.appendChild(el);
 
@@ -40,7 +40,7 @@ describe("content script", function () {
     mockHelper.setStore({ "atlassian-cloud-welcome": false });
 
     var el = document.createElement("div");
-    el.setAttribute("data-testid", "banner-container");
+    el.setAttribute("data-ssr-placeholder", "announcement-banner");
     el.textContent = "Welcome to Atlassian Cloud!";
     document.body.appendChild(el);
 
@@ -51,7 +51,7 @@ describe("content script", function () {
 
   it("skips elements that do not match textMatch", function () {
     var el = document.createElement("div");
-    el.setAttribute("data-testid", "banner-container");
+    el.setAttribute("data-ssr-placeholder", "announcement-banner");
     el.textContent = "Some other banner content";
     document.body.appendChild(el);
 
@@ -64,7 +64,7 @@ describe("content script", function () {
     mockHelper.setLastError({ message: "storage error" });
 
     var el = document.createElement("div");
-    el.setAttribute("data-testid", "banner-container");
+    el.setAttribute("data-ssr-placeholder", "announcement-banner");
     el.textContent = "Welcome to Atlassian Cloud!";
     document.body.appendChild(el);
 
@@ -103,7 +103,7 @@ describe("content script", function () {
       vi.useFakeTimers();
 
       var el = document.createElement("div");
-      el.setAttribute("data-testid", "banner-container");
+      el.setAttribute("data-ssr-placeholder", "announcement-banner");
       el.textContent = "Welcome to Atlassian Cloud! To report issues, raise a support ticket here.";
       document.body.appendChild(el);
 
@@ -119,7 +119,7 @@ describe("content script", function () {
       vi.useFakeTimers();
 
       var el = document.createElement("div");
-      el.setAttribute("data-testid", "banner-container");
+      el.setAttribute("data-ssr-placeholder", "announcement-banner");
       el.textContent = "Some unrelated banner text";
       document.body.appendChild(el);
 
@@ -135,12 +135,12 @@ describe("content script", function () {
 
       // Add two matching elements in rapid succession
       var el1 = document.createElement("div");
-      el1.setAttribute("data-testid", "banner-container");
+      el1.setAttribute("data-ssr-placeholder", "announcement-banner");
       el1.textContent = "Welcome to Atlassian Cloud! First instance.";
       document.body.appendChild(el1);
 
       var el2 = document.createElement("div");
-      el2.setAttribute("data-testid", "banner-container");
+      el2.setAttribute("data-ssr-placeholder", "announcement-banner");
       el2.textContent = "Welcome to Atlassian Cloud! Second instance.";
       document.body.appendChild(el2);
 
@@ -156,7 +156,7 @@ describe("content script", function () {
   describe("storage.onChanged listener", function () {
     it("updates banner visibility when storage changes", function () {
       var el = document.createElement("div");
-      el.setAttribute("data-testid", "banner-container");
+      el.setAttribute("data-ssr-placeholder", "announcement-banner");
       el.textContent = "Welcome to Atlassian Cloud!";
       document.body.appendChild(el);
 
@@ -171,7 +171,7 @@ describe("content script", function () {
 
     it("ignores storage changes for non-banner keys", function () {
       var el = document.createElement("div");
-      el.setAttribute("data-testid", "banner-container");
+      el.setAttribute("data-ssr-placeholder", "announcement-banner");
       el.textContent = "Welcome to Atlassian Cloud!";
       document.body.appendChild(el);
 
@@ -189,7 +189,7 @@ describe("content script", function () {
       mockHelper.setStore({ "atlassian-cloud-welcome": false });
 
       var el = document.createElement("div");
-      el.setAttribute("data-testid", "banner-container");
+      el.setAttribute("data-ssr-placeholder", "announcement-banner");
       el.textContent = "Welcome to Atlassian Cloud!";
       document.body.appendChild(el);
 
