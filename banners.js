@@ -5,11 +5,19 @@
 const BANNERS = Object.freeze([
   Object.freeze({
     id: "atlassian-cloud-welcome",
-    name: "Atlassian Cloud Welcome Banner",
-    description: "\"Welcome to Atlassian Cloud! To report issues, raise a support ticket here.\"",
+    name: "Atlassian",
+    description: "Welcome to Atlassian Cloud announcement banner",
     defaultEnabled: true,
     selector: '[data-ssr-placeholder="announcement-banner"]',
     textMatch: "Welcome to Atlassian Cloud"
+  }),
+  Object.freeze({
+    id: "slack-top-nav",
+    name: "Slack",
+    description: "Top search bar and navigation toolbar",
+    defaultEnabled: true,
+    selector: ".p-ia4_top_nav",
+    textMatch: ""
   })
 ]);
 
@@ -42,4 +50,14 @@ function showBanner(el) {
   if (el.hasAttribute(HIDDEN_ATTR)) {
     el.removeAttribute(HIDDEN_ATTR);
   }
+}
+
+var BB_SHOW_PREFIX = "bb-show-";
+
+function enableBlocking(bannerId) {
+  document.documentElement.classList.remove(BB_SHOW_PREFIX + bannerId);
+}
+
+function disableBlocking(bannerId) {
+  document.documentElement.classList.add(BB_SHOW_PREFIX + bannerId);
 }

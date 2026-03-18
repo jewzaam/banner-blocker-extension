@@ -21,6 +21,7 @@ describe("content script", function () {
 
   beforeEach(function () {
     mockHelper = createChromeMock();
+    document.documentElement.className = "";
     document.head.innerHTML = "";
     document.body.innerHTML = "";
   });

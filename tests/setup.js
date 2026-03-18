@@ -20,7 +20,10 @@ var fn = new Function("exports", source + "\n" +
   "exports.getDefaultStates = getDefaultStates;\n" +
   "exports.matchesBanner = matchesBanner;\n" +
   "exports.hideBanner = hideBanner;\n" +
-  "exports.showBanner = showBanner;\n"
+  "exports.showBanner = showBanner;\n" +
+  "exports.BB_SHOW_PREFIX = BB_SHOW_PREFIX;\n" +
+  "exports.enableBlocking = enableBlocking;\n" +
+  "exports.disableBlocking = disableBlocking;\n"
 );
 fn(exports);
 Object.assign(globalThis, exports);

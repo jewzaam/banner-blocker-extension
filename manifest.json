@@ -7,11 +7,16 @@
   "content_scripts": [
     {
       "matches": ["*://*.atlassian.net/*"],
-      "css": ["blocker.css"],
+      "css": ["css/atlassian.css"],
       "run_at": "document_start"
     },
     {
-      "matches": ["*://*.atlassian.net/*"],
+      "matches": ["*://*.slack.com/*"],
+      "css": ["css/slack.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.atlassian.net/*", "*://*.slack.com/*"],
       "js": ["banners.js", "content.js"],
       "run_at": "document_idle"
     }
