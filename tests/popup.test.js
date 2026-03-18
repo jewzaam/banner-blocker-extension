@@ -34,7 +34,7 @@ describe("popup", function () {
 
     var name = document.querySelector(".banner-name");
     var desc = document.querySelector(".banner-desc");
-    expect(name.textContent).toBe("Atlassian Cloud Welcome Banner");
+    expect(name.textContent).toBe("Atlassian");
     expect(desc.textContent).toContain("Welcome to Atlassian Cloud");
   });
 
@@ -57,7 +57,7 @@ describe("popup", function () {
     loadPopupScript(mockHelper);
 
     var checkbox = document.querySelector("input[type=checkbox]");
-    expect(checkbox.getAttribute("aria-label")).toBe("Block Atlassian Cloud Welcome Banner");
+    expect(checkbox.getAttribute("aria-label")).toBe("Block Atlassian");
   });
 
   it("sets role=listitem on banner items", function () {
